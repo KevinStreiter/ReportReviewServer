@@ -93,14 +93,10 @@ ENV/
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
-.idea/workspace.xml
-.idea/tasks.xml
+.idea/
 
 # application logs
 logs/
-
-# instance configuration
-instance
 
 # downloaded reports
 reports

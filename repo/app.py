@@ -1,16 +1,18 @@
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import psycopg2
-import schedule
 import pandas as pd
 from flask import Flask, g, jsonify, render_template, request, make_response
 from flask_assets import Bundle, Environment
 from psycopg2.extras import RealDictCursor
 
-from review.database import query_by_writer, query_by_writer_and_date
-from review.calculations import relative
+from review.database import query_by_writer_and_department_and_modality, query_all_by_departments, \
+    query_by_writer_and_date_and_department_and_modality, \
+    query_by_reviewer_and_date_and_department_and_modality, query_by_reviewer_and_department_and_modality, \
+    query_by_date, query_by_last_exams
+from review.calculations import relative, calculate_median, calculate_median_by_writer, calculate_median_by_reviewer
 
 from repo.converter import rtf_to_text
 from repo.database.connection import open_connection
@@ -23,6 +25,8 @@ from repo.report import get_as_txt, get_as_rtf, get_with_file, q
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('repo.default_config')
 app.config.from_pyfile('config.cfg')
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+app.jinja_env.add_extension('jinja2.ext.do')
 version = app.config['VERSION'] = '3.0.4'
 
 RIS_DB_SETTINGS = {
@@ -37,7 +41,8 @@ REVIEW_DB_SETTINGS = {
     'dbname': app.config['REVIEW_DB_NAME'],
     'user': app.config['REVIEW_DB_USER'],
     'password': app.config['REVIEW_DB_PASSWORD'],
-    'host': 'localhost'
+    'host': 'localhost',
+    'port': app.config['REVIEW_DB_PORT']
 }
 
 REPORTS_FOLDER = 'reports'
@@ -45,9 +50,12 @@ if not os.path.exists(REPORTS_FOLDER):
     os.makedirs(REPORTS_FOLDER, exist_ok=True)
 
 assets = Environment(app)
-js = Bundle("js/jquery-3.1.0.min.js", "js/moment.min.js",
-            "js/pikaday.js", "js/pikaday.jquery.js",
-            "js/script.js",
+js = Bundle("js/plugins/jquery-3.1.0.min.js", "js/plugins/moment.min.js", "js/plugins/pikaday.js",
+            "js/plugins/pikaday.jquery.js", "js/dashboard/writerDashboard.js", "js/dashboard/reviewerDashboard.js",
+            "js/handlers/diffHandling.js", "js/handlers/checkBoxHandling.js", "js/handlers/datePickerHandling.js",
+            "js/graphs/graph.js", "js/graphs/pieChart.js", "js/graphs/barChart.js", "js/graphs/colorScale.js",
+            "js/handlers/clearHandling.js", "js/handlers/infoHandling.js", "js/handlers/buttonHandling.js",
+            "js/treeMap/treeMap.js", "js/handlers/floatTheadHandling.js",
             filters='jsmin', output='gen/packed.js')
 assets.register('js_all', js)
 
@@ -75,17 +83,18 @@ def review():
     now = datetime.now().strftime('%d.%m.%Y')
     day = request.args.get('day', now)
     writer = request.args.get('writer', '')
+    reviewer = request.args.get('reviewer', '')
     dd = datetime.strptime(day, '%d.%m.%Y')
-    con =  get_review_db()
-    rows = query_review_reports(con.cursor(), dd, writer)
+    con = get_review_db()
+    rows = query_review_reports(con.cursor(), dd, writer, reviewer)
     day = dd.strftime('%d.%m.%Y')
     return render_template('review.html',
-        rows=rows, day=day, writer=writer, version=version)
+                           rows=rows, day=day, writer=writer, reviewer=reviewer, version=version)
 
 
 @app.route('/review/diff/<id>')
 def diff(id):
-    con =  get_review_db()
+    con = get_review_db()
     row = query_review_report(con.cursor(), id)
     cases = ['befund_s', 'befund_g', 'befund_f']
     for c in cases:
@@ -97,45 +106,129 @@ def diff(id):
     return render_template('diff.html', row=row, version=version)
 
 
-@app.route('/review/dashboard')
-def dashboard():
+@app.route('/review/writer-dashboard')
+def writer_dashboard():
     writer = request.args.get('w', '')
     last_exams = request.args.get('last_exams', 30)
     start_date = request.args.get('start_date', '')
     end_date = request.args.get('end_date', '')
-    rows = load_data(writer, last_exams, start_date, end_date)
+    departments = request.args.getlist('departments') or \
+                  ['AOD', 'CTD', 'MSK', 'NUK', 'IR', 'FPS', 'MAM', 'NR', 'UKBB']
+    departments = '{' + ','.join(departments) + '}'
+    modalities = request.args.getlist('modalities') or \
+                  ['CT', 'MRI', 'US', 'RX', 'OTHER']
+    modalities = '{' + ','.join(modalities) + '}'
+    rows = load_data_by_writer(writer, last_exams, start_date, end_date, departments, modalities)
+    df_rows = pd.DataFrame(rows)
+    df_rows = relative(df_rows)
+    df_rows = remove_NaT_format(df_rows)
+    data = calculate_median_by_reviewer(df_rows)
+    rows = df_rows.to_dict('records')
+    median_single = calculate_median(rows)
+    all_rows = load_all_data(departments)
+    df_all_rows = pd.DataFrame(all_rows)
+    df_all_rows = remove_NaT_format(df_all_rows)
+    all_rows = relative(df_all_rows).to_dict('records')
+    median_all = calculate_median(all_rows)
+    data['rows'] = rows
+    data['median_single'] = median_single
+    data['median_all'] = median_all
 
-    return render_template('dashboard.html',
-        rows=rows, writer=writer, last_exams=last_exams,
-        start_date=start_date, end_date=end_date, version=version)
+    return render_template('writer-dashboard.html',
+                           data=data, writer=writer, last_exams=last_exams,
+                           start_date=start_date, end_date=end_date, version=version, departments=departments)
 
 
-@app.route('/review/dashboard/data')
-def data():
-    writer = request.args.get('w', '')
+@app.route('/review/reviewer-dashboard')
+def reviewer_dashboard():
+    reviewer = request.args.get('r', '')
     last_exams = request.args.get('last_exams', 30)
     start_date = request.args.get('start_date', '')
     end_date = request.args.get('end_date', '')
-    rows = load_data(writer, last_exams, start_date, end_date)
-    logging.debug(rows)
-    if len(rows) > 0:
-        df = pd.DataFrame(rows)
-        df = relative(df).sort_values('unters_beginn')
-        return df.to_csv(index_label='index')
-    return pd.DataFrame().to_csv(index_label='index')
+    departments = request.args.getlist('departments') or \
+                  ['AOD', 'CTD', 'MSK', 'NUK', 'IR', 'FPS', 'MAM', 'NR', 'UKBB']
+    departments = '{' + ','.join(departments) + '}'
+    modalities = request.args.getlist('modalities') or \
+                 ['CT', 'MRI', 'US', 'RX', 'OTHER']
+    modalities = '{' + ','.join(modalities) + '}'
+    rows = load_data_by_reviewer(reviewer, last_exams, start_date, end_date, departments, modalities)
+    df_rows = pd.DataFrame(rows)
+    df_rows = relative(df_rows)
+    df_rows = remove_NaT_format(df_rows)
+    data = calculate_median_by_writer(df_rows)
+    rows = df_rows.to_dict('records')
+    median_single = calculate_median(rows)
+    all_rows = load_all_data(departments)
+    df_all_rows = pd.DataFrame(all_rows)
+    df_all_rows = remove_NaT_format(df_all_rows)
+    all_rows = relative(df_all_rows).to_dict('records')
+    median_all = calculate_median(all_rows)
+    data['rows'] = rows
+    data['median_single'] = median_single
+    data['median_all'] = median_all
+    return render_template('reviewer-dashboard.html',
+                           data=data, reviewer=reviewer, last_exams=last_exams,
+                           start_date=start_date, end_date=end_date, version=version, departments=departments)
 
 
-def load_data(writer, last_exams, start_date, end_date):
+@app.route('/review/treeMap')
+def tree_map():
+    last_exams = request.args.get('last_exams', 1000)
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    rows = load_tree_map_data(last_exams, start_date, end_date)
+    df = pd.DataFrame(rows)
+    df = remove_NaT_format(df)
+    rows = relative(df).to_dict('records')
+    return render_template('treeMap.html',
+                           rows=rows, last_exams=last_exams,
+                           start_date=start_date, end_date=end_date, version=version)
+
+
+def load_data_by_writer(writer, last_exams, start_date, end_date, departments, modalities):
     con = get_review_db()
     cursor = con.cursor(cursor_factory=RealDictCursor)
     if start_date and end_date:
         s_d = datetime.strptime(start_date, '%d.%m.%Y')
         e_d = datetime.strptime(end_date, '%d.%m.%Y')
-        rows = query_by_writer_and_date(cursor, writer, s_d, e_d)
+        rows = query_by_writer_and_date_and_department_and_modality(cursor, writer, s_d, e_d, departments, modalities)
     else:
-        rows = query_by_writer(cursor, writer, last_exams)
+        rows = query_by_writer_and_department_and_modality(cursor, writer, last_exams, departments, modalities)
     return rows
 
+
+def load_data_by_reviewer(reviewer, last_exams, start_date, end_date, departments, modalities):
+    con = get_review_db()
+    cursor = con.cursor(cursor_factory=RealDictCursor)
+    if start_date and end_date:
+        s_d = datetime.strptime(start_date, '%d.%m.%Y')
+        e_d = datetime.strptime(end_date, '%d.%m.%Y')
+        rows = query_by_reviewer_and_date_and_department_and_modality(cursor, reviewer, s_d, e_d, departments, modalities)
+    else:
+        rows = query_by_reviewer_and_department_and_modality(cursor, reviewer, last_exams, departments, modalities)
+    return rows
+
+
+def load_tree_map_data(last_exams, start_date, end_date):
+    con = get_review_db()
+    cursor = con.cursor(cursor_factory=RealDictCursor)
+    if start_date and end_date:
+        s_d = datetime.strptime(start_date, '%d.%m.%Y')
+        e_d = datetime.strptime(end_date, '%d.%m.%Y')
+        rows = query_by_date(cursor, s_d, e_d)
+    else:
+        rows = query_by_last_exams(cursor, last_exams)
+    return rows
+
+
+def load_all_data(departments):
+    con = get_review_db()
+    cursor = con.cursor(cursor_factory=RealDictCursor)
+    return query_all_by_departments(cursor, departments)
+
+
+def remove_NaT_format(df):
+    return df.fillna('None')
 
 @app.route('/cm')
 def cm():

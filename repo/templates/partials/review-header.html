@@ -1,29 +1,42 @@
-<nav class="w-100 center pv4 mw8 bb b--light-gray">
-  <div class="dtc v-btm w-25 tl">
-    <a class="dtc v-btm link w-75 link f6 f5-ns dib mr3 mr4-ns near-black underline-hover" href="/review" title="Home">
-      Report Review Server
-      <div>
-        <small class="nowrap f6 mt2 mt3-ns pr2 black-70 fw2">v{{ version }}</small>
-      </div>
-    </a>
-  </div>
+<nav class="w-100 center pt4 mw8 bb b--light-gray">
+    <div class="dtc v-btm w-10 tl">
+        <a class="dtc v-btm link w-75 link f6 f5-ns dib mr3 mr4-ns near-black underline-hover" href="/review"
+           title="Home">
+            Report Review Server
+            <div>
+                <small class="nowrap f6 mt2 mt3-ns pr2 black-70 fw2">v{{ version }}</small>
+            </div>
+        </a>
+    </div>
 
-  <div class="cf dtc w-40">
-    <form action="/review">
-      <label class="f6 pa2" for="datepicker">Date </label>
-      <input id="datepicker" class="f6 pa2 input-reset ba bg-transparent hover-bg-grey hover-black w-25 b--near-black" value="{{day}}" type="text"
-        name="day" placeholder="day">
-      <label class="f6 pa2" for="writer">Writer </label>
-      <input id="writer" class="f6 pa2 input-reset ba bg-transparent hover-bg-grey hover-black w-25 b--near-black" value="{{writer}}" type="text"
-        name="writer" placeholder="Shortname">
-      <input class="black f6 input-reset pa2 ba bg-yellow b--yellow pointer" type="submit" value="Search">
-    </form>
-  </div>
-
-  <div class="dtc v-btm w-35 tr">
-    <a class="link f6 f5-ns dib near-black underline-hover" href="http://www.unispital-basel.ch/index.php?id=1899" title="Universitätsspital Basel, Klinik für Radiologie und Nuklearmedizin">
-      Universitätsspital Basel
-      <br>Klinik für Radiologie und Nuklearmedizin
-    </a>
-  </div>
+    <div class="cf pl4 dtc w-40 v-btm truncate">
+        <form action="/review">
+            <label class="f6 pa1" for="datepicker">Date </label>
+            <input id="datepicker"
+                   class="f6 pa2 input-reset ba bg-transparent hover-bg-grey hover-black w-20 b--near-black"
+                   value="{{ day }}" type="text"
+                   name="day" placeholder="day">
+            <label class="f6 pa1" for="writer">Writer </label>
+            <input id="writer" class="f6 pa2 input-reset ba bg-transparent hover-bg-grey hover-black w-20 b--near-black"
+                   value="{{ writer }}" type="text"
+                   name="writer" placeholder="Shortname">
+            <label class="f6 pa1" for="writer">Reviewer </label>
+            <input id="reviewer"
+                   class="f6 pa2 input-reset ba bg-transparent hover-bg-grey hover-black w-20 b--near-black"
+                   value="{{ reviewer }}" type="text"
+                   name="reviewer" placeholder="Shortname">
+            <input class="black f6 input-reset pa2 ba bg-yellow b--yellow pointer" type="submit" value="Search">
+        </form>
+    </div>
+    <div class="dtc v-btm w-10 tr">
+        <a class="link f6 f5-ns dib near-black underline-hover" href="http://www.unispital-basel.ch/index.php?id=1899"
+           title="Universitätsspital Basel, Klinik für Radiologie und Nuklearmedizin">
+            Universitätsspital Basel
+            <br>Klinik für Radiologie und Nuklearmedizin
+        </a>
+    </div>
+    <div class="flex justify-center">
+        <p>Click <a
+                href="/review/treeMap">here</a> to redirect to the <b>TreeMap</b> visualization.</p>
+    </div>
 </nav>

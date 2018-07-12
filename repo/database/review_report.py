@@ -16,9 +16,9 @@ def query_review_report(cursor, id):
     return result[0] if result else []
 
 
-def query_review_reports(cursor, day, writer):
+def query_review_reports(cursor, day, writer, reviewer):
     """
-    Query all reports in the review db by day and writer (optional).
+    Query all reports in the review db by day and writer (optional) and reviewer (optional).
     """
     sql = """
           SELECT
@@ -38,7 +38,14 @@ def query_review_reports(cursor, day, writer):
             a.gegenleser,
             a.pat_name,
             a.pat_vorname,
-            a.untart_name
+            a.untart_name,
+            a.jaccard_g_f,
+            a.jaccard_s_f,
+            a.words_added_g_f,
+            a.words_deleted_g_f,
+            a.pp_misc_mfd_1_kuerzel,
+            a.pp_misc_mfd_1_bezeichnung,
+            a.modality
           FROM
             reports a
           WHERE
@@ -48,18 +55,25 @@ def query_review_reports(cursor, day, writer):
                     AND
                   %s
             {{ writer_clause }}
+            {{ reviewer_clause}}
           ORDER BY
               a.unters_beginn
           """
     start = day.strftime('%Y-%m-%d 00:00:00')
     end = day.strftime('%Y-%m-%d 23:59:59')
     template = Template(sql)
-    if writer:
-      sql = template.render(writer_clause=' AND a.schreiber = %s')
-      cursor.execute(sql, (start, end, writer.upper()))
+    if writer and not reviewer:
+        sql = template.render(writer_clause=' AND a.schreiber = %s')
+        cursor.execute(sql, (start, end, writer.upper()))
+    elif reviewer and not writer:
+        sql = template.render(reviewer_clause=' AND a.freigeber = %s')
+        cursor.execute(sql, (start, end, reviewer.upper()))
+    elif writer and reviewer:
+        sql = template.render(writer_clause=' AND a.schreiber = %s', reviewer_clause=' AND a.freigeber = %s')
+        cursor.execute(sql, (start, end, writer.upper(), reviewer.upper()))
     else:
-      sql = template.render()
-      cursor.execute(sql, (start, end))
+        sql = template.render()
+        cursor.execute(sql, (start, end))
     desc = [d[0].lower() for d in cursor.description]
     result = [dict(zip(desc, row)) for row in cursor]
     return result

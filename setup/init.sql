@@ -1,6 +1,7 @@
 CREATE USER review;
 CREATE DATABASE review;
 GRANT ALL PRIVILEGES ON DATABASE review TO review;
+ALTER ROLE review WITH PASSWORD 'review';
 
 CREATE TABLE reports (
     unters_schluessel bigint NOT NULL,

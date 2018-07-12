@@ -1,0 +1,10 @@
+/*
+ * Copyright (c) 2014 Macrofocus GmbH. All Rights Reserved.
+ */
+body {
+    background-color: white;
+    color: black;
+    font-family: Arial, sans-serif;
+    font-size: small;
+    margin: 8px;
+}

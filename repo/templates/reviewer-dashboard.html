@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Report Review Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tachyons.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pikaday.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="text/javascript"> data = {{ data|tojson|safe }};
+    </script>
+</head>
+
+<body class="w-100 sans-serif" data-page="reviewer-dashboard">
+{% include 'partials/reviewer-dashboard-header.html' %}
+<div class="w-100 b--black-10 mw8 center">
+    <div class="w-100 flex items-center">
+        <h1 class="f3 di-ns pr2">Personal Dashboard</h1>
+        <button class="black f7 ba bg-light-yellow b--light-yellow infoDashboard">Info</button>
+    </div>
+    <p>This is a personal dashboard that should help the supervisor to keep track of radiological assistant reports.
+    </p>
+    <div class="w-100 flex items-center">
+        <h1 class="f4 di-ns pr2">TreeMap</h1>
+        <button class="black f7 ba bg-light-yellow b--light-yellow infoSimilarity">Info</button>
+    </div>
+    <p> Click <a href="/review/treeMap">here</a> to redirect to the <b>TreeMap</b> visualization.
+    </p>
+    <div class="w-100 flex items-center">
+        <h1 class="f4 di-ns pr2">Reports List</h1><span class="pr2"><i>({{ data['rows']|length }} reports)</i></span>
+        <button class="black f7 ba bg-light-yellow b--light-yellow infoReportsList">Info</button>
+    </div>
+    {% include 'partials/report-list.html' %}
+    <div class="w-100 flex items-center">
+        <h1 class="f4 di-ns pr2">Relative Document Changes</h1>
+        <button class="black f7 ba bg-light-yellow b--light-yellow infoDocumentChanges">Info</button>
+    </div>
+    <svg id="WordsAddedBarChart" class="ph4-l" width="440" height="250"></svg>
+    <svg id="WordsDeletedBarChart" class="pl2-l" width="440" height="250"></svg>
+    <h3 class="f5 di-ns pl6-l pr7-l ">
+        Words added
+    </h3>
+    <h3 class="f5 di-ns ph6-l">
+        Words deleted
+    </h3>
+    <div class="w-100 flex items-center">
+        <h1 class="f4 di-ns pr2">Writer List</h1>
+        <button class="black f7 ba bg-light-yellow b--light-yellow infoWriterList">Info</button>
+    </div>
+    {% include 'partials/writer-list.html' %}
+</div>
+{% assets "js_all" %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plugins/pikaday.js') }}"></script>
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plugins/d3.v4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plugins/jquery.floatThead.js') }}"></script>
+{% endassets %}
+</body>
+</html>

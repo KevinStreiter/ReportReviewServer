@@ -1,0 +1,46 @@
+<div class="w-100 b--black-10">
+    <div class="ph4 pv1 h5-l tableWrapper overflow-auto">
+        <table class="f6 w-100 mw8 center tableDashboard" cellspacing="0">
+            <thead>
+            <tr>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white w-20">Date of exam
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white w-20">Patient</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white w-20">Type of exam</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">Modality</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">Department</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">Writer</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">Reviewer</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">Status</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">S->F</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">G->F</th>
+                <th class="fw6 bb bw1 b--black-80 tl pb2 pa1 bg-white">History</th>
+            </tr>
+            </thead>
+            <tbody class="lh-copy">
+            {% for row in data['rows'] %}
+                <tr>
+                    <td class="pa1 bb b--black-10 w-20">{{ row['unters_beginn'].strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td class="pa1 bb b--black-10 w-20">{{ row['pat_name'] }}, {{ row['pat_vorname'] }}</td>
+                    <td class="pa1 bb b--black-10 w-20">{{ row['untart_name'] }}</td>
+                    <td class="pa1 bb b--black-10">{{ row['modality'] }}</td>
+                    <td class="pa1 bb b--black-10">{{ row['pp_misc_mfd_1_kuerzel'] }}</td>
+                    <td class="pa1 bb b--black-10 dashboardRow"><a
+                            href="writer-dashboard?w={{ row['schreiber'] }}">{{ row['schreiber'] }}</a>
+                    </td>
+                    <td class="pa1 bb b--black-10 dashboardRow"><a
+                            href="reviewer-dashboard?r={{ row['freigeber'] }}">{{ row['freigeber'] }}</a>
+                    </td>
+                    <td class="pa1 bb b--black-10">{{ row['befund_status'] }}</td>
+                    <td class="pa1 bb b--black-10">{{ '%0.1f' % row['jaccard_s_f']|float }}</td>
+                    <td class="pa1 bb b--black-10">{{ '%0.1f' % row['jaccard_g_f']|float }}</td>
+                    <td class="bb b--black-10">
+                        {% if row['befund_status'] == 'f' %}
+                            <a href="diff/{{ row['befund_schluessel'] }}">Show changes</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

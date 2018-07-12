@@ -8,7 +8,11 @@
 </head>
 
 <body class="w-100 sans-serif" data-page="diff">
-    {% include 'partials/review-header.html' %}
+    {% include 'partials/diff-header.html' %}
+    <div class="w-100 flex pl5 items-center">
+        <h1 class="f4 di-ns pr2">Diff-View</h1>
+        <button class="black f7 ba bg-light-yellow b--light-yellow infoDiffView">Info</button>
+    </div>
     <div class="w-100 ph5-ns cf f6">
         {% if not row %}
         <div class="f6 w-100 mw8 center pv3 mt1 red">
@@ -66,8 +70,8 @@
         {% endif %}
     </div>
     {% assets "js_all" %}
-    <script type="text/javascript" src="{{ url_for('static', filename='js/pikaday.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/diff.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plugins/pikaday.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plugins/diff.js') }}"></script>
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
 </body>

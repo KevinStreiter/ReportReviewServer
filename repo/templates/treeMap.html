@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Report Review Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tachyons.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pikaday.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename="TreeMap/TreeMapAPI.css") }}">
+
+    <script type="text/javascript"> rows = {{ rows|tojson|safe }};
+    </script>
+
+</head>
+
+<body class="w-100 sans-serif" data-page="treeMap">
+{% include 'partials/treeMap-header.html' %}
+<div class="w-100 b--black-10 mw8 center">
+    <div class="w-100 items-center">
+        <div class="w-100 h4-l flex items-center">
+            <h1 class="f3 di-ns pr2">TreeMap</h1><span class="pr2"><i>({{ rows|length }} reports)</i></span>
+            <button class="black f7 ba bg-light-yellow b--light-yellow infoTreeMap">Info</button>
+        </div>
+        <div class="w-100 flex center justify-center mw8">
+            <label class="f6 pa2" for="selectGroup">Group by:</label>
+            <select id="selectGroup" class="f6 pa1 ba bg-yellow pointer b--yellow black">
+                <option value="pp_misc_mfd_1_kuerzel" selected="selected">Department</option>
+                <option value="modality">Modality</option>
+                <option value="schreiber">Writer</option>
+                <option value="freigeber">Reviewer</option>
+                <option value="pp_misc_mfd_1_kuerzel, schreiber">Department / Writer</option>
+                <option value="pp_misc_mfd_1_kuerzel, freigeber">Department / Reviewer</option>
+                <option value="pp_misc_mfd_1_kuerzel, modality">Department / Modality</option>
+                <option value="modality, schreiber">Modality / Writer</option>
+                <option value="modality, freigeber">Modality / Reviewer</option>
+                <option value="schreiber, freigeber">Writer / Reviewer</option>
+                <option value="freigeber, schreiber">Reviewer / Writer</option>
+                <option value="pp_misc_mfd_1_kuerzel, schreiber, freigeber">Department / Writer / Reviewer</option>
+                <option value="pp_misc_mfd_1_kuerzel, freigeber, schreiber">Department / Reviewer / Writer</option>
+                <option value="modality, schreiber, freigeber">Modality / Writer / Reviewer</option>
+                <option value="modality, freigeber, schreiber">Modality / Reviewer / Writer</option>
+            </select>
+            <label class="f6 pa2" for="selectValue">Change Metric:</label>
+            <select id="selectValue" class="f6 pa1 ba bg-yellow pointer b--yellow black">
+                <option value="jaccard_s_f" selected="selected">Similarity s -> f</option>
+                <option value="jaccard_g_f">Similarity g -> f</option>
+                <option value="words_added_relative_s_f">Relative Words added s -> f</option>
+                <option value="words_added_relative_g_f">Relative Words added g -> f</option>
+                <option value="words_deleted_relative_s_f">Relative Words deleted s -> f</option>
+                <option value="words_deleted_relative_g_f">Relative Words deleted g -> f</option>
+            </select>
+        </div>
+        <div class="w-100 flex center justify-center mw8">
+            <label id="colorScaleLabelTitle" class="f6 pv3 pr2-l" for="colorScale">Colorscale</label>
+            <label id="colorScaleLabelValue" class="f6 pv3" for="colorScale"></label>
+            <svg id="colorScale" width="170" height="55"></svg>
+        </div>
+    </div>
+    <div id="treeMap" class="pv3" style="width: 100%;height: 600px;"></div>
+</div>
+{% assets "js_all" %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plugins/pikaday.js') }}"></script>
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/plugins/TreeMap/TreeMap.nocache.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plugins/d3.v4.min.js') }}"></script>
+{% endassets %}
+</body>
+</html>

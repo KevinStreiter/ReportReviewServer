@@ -6,20 +6,139 @@ div.tooltip {
     padding: 4px;
     font: 12px sans-serif;
     background: rgb(224, 228, 233);
-    border: 0px;
-    border-radius: 0px;
+    border: 0;
+    border-radius: 0;
     pointer-events: none;
     color: black;
 }
 
-.bar {
+.barSimilarity {
     fill: steelblue;
-  }
+}
 
-  .bar:hover {
-    fill: brown;
-  }
+.barWordsAdded {
+    fill: #009418;
+}
 
-  .axis--x path {
+.barWordsDeleted {
+    fill: #f5070d;
+}
+
+.barSimilarity:hover, .barWordsAdded:hover, .barWordsDeleted:hover {
+    fill: #666967;
+}
+
+.barText {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.barAnnotation {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.axis--x path {
     display: none;
-  }
+}
+
+.axisAnnotation {
+    text-anchor: middle;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.buttonSimilarity, .buttonWordsAdded, .buttonWordsDeleted, .buttonReset {
+    fill: lightgray;
+}
+
+.buttonSimilarity:hover, .buttonWordsAdded:hover, .buttonWordsDeleted:hover, .buttonReset:hover {
+    fill: darkgrey;
+}
+
+.buttonAnnotationSimilarity, .buttonAnnotationWordsAdded, .buttonAnnotationWordsDeleted, .buttonAnnotationReset {
+    text-anchor: middle;
+    font-size: 13px;
+    dominant-baseline: central;
+    fill: white;
+    font-weight: bold;
+}
+
+.grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    stroke-width: 0;
+}
+
+.circle {
+    stroke: lightgray;
+}
+
+.pieChartFontSingle {
+    font: 50px sans-serif;
+    fill: steelblue;
+}
+
+.pieChartFontAll {
+    font: 50px sans-serif;
+    fill: #666967;
+}
+
+.medianLineSingle {
+    stroke-width: 1px;
+    stroke-dasharray: 5, 5;
+}
+
+.medianLineAll {
+    stroke-width: 1px;
+    stroke: #666967;
+    stroke-dasharray: 5, 5;
+}
+
+.exceedingLine {
+    stroke-width: 1px;
+    stroke: darkgrey;
+}
+
+.exceedingLineAnnotation {
+    text-anchor: middle;
+    font-size: 14px;
+    dominant-baseline: central;
+    font-weight: bold;
+}
+
+.brushLineLeft, .brushLineRight {
+    stroke-width: 6px;
+    opacity: 0.5;
+    stroke-linecap: round;
+}
+
+.legend {
+    text-anchor: end;
+    font: 10px sans-serif;
+}
+
+.graphBar {
+    text-anchor: middle;
+    font: 10px sans-serif;
+    fill: white;
+}
+
+.backgroundRect {
+    fill: lightgray;
+    opacity: 0.2;
+}
+
+.colorScale {
+    font: 10px sans-serif;
+    stroke: lightgray;
+    stroke-width: 0.5px;
+}
+
+.treeMapHeader {
+    color: black !important;
+}

@@ -2,11 +2,12 @@ import unittest
 
 from review.compare import _diff, _total_length
 
+
 class TestCompare(unittest.TestCase):
     def test_compare(self):
         l1 = "Hello Mary Sue from Johnny"
         l2 = "Hello John Doe from Jakob"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 3)
         self.assertEqual(r['additions'], 3)
         self.assertEqual(r['jaccard'], 0.25)
@@ -14,7 +15,7 @@ class TestCompare(unittest.TestCase):
     def test_compare1(self):
         l1 = "Hello Mary"
         l2 = "Hello John"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 1)
         self.assertEqual(r['additions'], 1)
         self.assertEqual(r['jaccard'], 0.333)
@@ -22,7 +23,7 @@ class TestCompare(unittest.TestCase):
     def test_compare2(self):
         l1 = "Hello Mary Sue"
         l2 = "Hello John Sue"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 1)
         self.assertEqual(r['additions'], 1)
         self.assertEqual(r['jaccard'], 0.5)
@@ -30,7 +31,7 @@ class TestCompare(unittest.TestCase):
     def test_compare3(self):
         l1 = "Hello John Doe"
         l2 = "Hello Sue"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 2)
         self.assertEqual(r['additions'], 1)
         self.assertEqual(r['jaccard'], 0.25)
@@ -38,7 +39,7 @@ class TestCompare(unittest.TestCase):
     def test_compare4(self):
         l1 = "Hello John Doe"
         l2 = "Hello John Doe"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 0)
         self.assertEqual(r['additions'], 0)
         self.assertEqual(r['jaccard'], 1.0)
@@ -46,7 +47,7 @@ class TestCompare(unittest.TestCase):
     def test_compare5(self):
         l1 = "John Doe"
         l2 = "Mary Sue"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 2)
         self.assertEqual(r['additions'], 2)
         self.assertEqual(r['jaccard'], 0.0)
@@ -54,7 +55,7 @@ class TestCompare(unittest.TestCase):
     def test_compare6(self):
         l1 = "John Doe"
         l2 = "John Doe Silver"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 0)
         self.assertEqual(r['additions'], 1)
         self.assertEqual(r['jaccard'], 0.667)
@@ -62,10 +63,11 @@ class TestCompare(unittest.TestCase):
     def test_compare7(self):
         l1 = ""
         l2 = "Mary Sue"
-        r = _diff(l1,l2)
+        r = _diff(l1, l2)
         self.assertEqual(r['deletions'], 0)
         self.assertEqual(r['additions'], 2)
         self.assertEqual(r['jaccard'], 0.0)
+
 
 class TestLength(unittest.TestCase):
     def test_length(self):

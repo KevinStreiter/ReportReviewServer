@@ -1,0 +1,43 @@
+<div class="w-100 b--black-10">
+    <div class="ph4 pb3">
+        <div class="overflow-auto">
+            <table class="f6 w-100 mw8 center" cellspacing="0">
+                <tbody class="lh-copy">
+                {% set writerlist = data['rows']|map(attribute ='schreiber')|unique|list %}
+                {% for writer in writerlist %}
+                    <tr>
+                        <td class="pa1 bb b--black-10 writerName">{{ writer }}
+                            <button class="black fr f7 input-reset pa1 ba bg-yellow b--yellow pointer writerButton">Show
+                            </button>
+                            <div id="graphs{{ writer }}" class="b--black-10 mw8 center dn writerGraphs">
+                                <div class="w-100 flex items-center">
+                                    <h1 class="f4 di-ns pr2">Words added</h1>
+                                    <button class="black f7 ba bg-light-yellow b--light-yellow infoWordsAdded">Info
+                                    </button>
+                                </div>
+                                <svg id="WordsAddedGraph{{ writer }}" width="950" height="500"></svg>
+                                <div class="w-100 flex items-center">
+                                    <h1 class="f5 pr2">Median</h1>
+                                    <button class="black f7 ba bg-light-yellow b--light-yellow infoMedianDocumentChanges">Info</button>
+                                </div>
+                                <svg id="WordsAddedBarChart{{ writer }}" class="ph6-l" width="650" height="250"></svg>
+                                <div class="w-100 flex items-center">
+                                    <h1 class="f4 di-ns pr2">Words deleted</h1>
+                                    <button class="black f7 ba bg-light-yellow b--light-yellow infoWordsDeleted">Info
+                                    </button>
+                                </div>
+                                <svg id="WordsDeletedGraph{{ writer }}" width="950" height="500"></svg>
+                                <div class="w-100 flex items-center">
+                                    <h1 class="f5 di-ns pr2">Median</h1>
+                                    <button class="black f7 ba bg-light-yellow b--light-yellow infoMedianDocumentChanges">Info</button>
+                                </div>
+                                <svg id="WordsDeletedBarChart{{ writer }}" class="ph6-l" width="650" height="250"></svg>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
