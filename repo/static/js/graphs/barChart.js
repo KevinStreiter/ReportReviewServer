@@ -79,7 +79,7 @@ function drawBarChart(svg, value, color, maxValue, writer, reviewer) {
             }
         })
         .text(function (d) {
-            return (d.value * 100).toPrecision(2) + "%";
+            return (Math.round(d.value*1000) / 10) + "%";
         });
 }
 
